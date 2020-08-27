@@ -85,7 +85,6 @@
 
             <div class="noVNC_scroll">
 
-            <h1 class="noVNC_logo" translate="no"><span>no</span><br>VNC</h1>
 
             <!-- Drag/Pan the viewport -->
             <input type="image" alt="Drag" src="app/images/drag.svg"
@@ -250,6 +249,8 @@
                     </li>
                     <li class="noVNC_version_separator"><hr></li>
                     <li class="noVNC_version_wrapper">
+                        <input id="noVNC_setting_session_id" type="hidden">
+                        <input id="noVNC_setting_tab_id" type="hidden">
                         <span>Version:</span>
                         <span class="noVNC_version"></span>
                     </li>
@@ -275,7 +276,6 @@
     <!-- Connect button -->
     <div class="noVNC_center">
         <div id="noVNC_connect_dlg">
-            <div class="noVNC_logo" translate="no"><span>no</span>VNC</div>
             <div id="noVNC_connect_button"><div>
                 <img alt="" src="app/images/connect.svg"> Connect
             </div></div>

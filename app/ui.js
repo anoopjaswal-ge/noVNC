@@ -41,6 +41,17 @@ const UI = {
     reconnectCallback: null,
     reconnectPassword: null,
 
+    dispatchEventToParent(evenetName){
+        console.log(evenetName);
+        let event = new CustomEvent(evenetName, { 
+            detail: {
+                tabId: UI.getSetting('tab_id'),
+                sessionId: UI.getSetting('session_id'),
+            } 
+        });
+        window.parent.document.dispatchEvent(event);
+    },    
+
     prime() {
         return WebUtil.initSettings().then(() => {
             if (document.readyState === "interactive" || document.readyState === "complete") {
@@ -142,6 +153,8 @@ const UI = {
 
         // Settings with immediate effects
         UI.initSetting('logging', 'warn');
+        UI.initSetting('session_id');
+        UI.initSetting('tab_id');
         UI.updateLogging();
 
         // if port == 80 (or 443) then it won't be present and should be
@@ -982,7 +995,6 @@ const UI = {
     },
 
     connect(event, password) {
-
         // Ignore when rfb already exists
         if (typeof UI.rfb !== 'undefined') {
             return;
@@ -1021,7 +1033,7 @@ const UI = {
         if (port) {
             url += ':' + port;
         }
-        url += '/' + path;
+        url += '/' + path + '?sessionId=' + UI.getSetting('session_id');
 
         UI.rfb = new RFB(document.getElementById('noVNC_container'), url,
                          { shared: UI.getSetting('shared'),
@@ -1041,12 +1053,13 @@ const UI = {
         UI.rfb.qualityLevel = parseInt(UI.getSetting('quality'));
         UI.rfb.compressionLevel = parseInt(UI.getSetting('compression'));
         UI.rfb.showDotCursor = UI.getSetting('show_dot');
-
+        
         UI.updateViewOnly(); // requires UI.rfb
     },
 
     disconnect() {
         UI.rfb.disconnect();
+        UI.dispatchEventToParent('vnc_disconnect_event');
 
         UI.connected = false;
 
@@ -1084,6 +1097,7 @@ const UI = {
     connectFinished(e) {
         UI.connected = true;
         UI.inhibitReconnect = false;
+        UI.dispatchEventToParent('vnc_connectFinished_event');
 
         let msg;
         if (UI.getSetting('encrypt')) {
@@ -1100,6 +1114,7 @@ const UI = {
 
     disconnectFinished(e) {
         const wasConnected = UI.connected;
+        UI.dispatchEventToParent('vnc_disconnectFinished_event');
 
         // This variable is ideally set when disconnection starts, but
         // when the disconnection isn't clean or if it is initiated by
@@ -1145,6 +1160,7 @@ const UI = {
         } else {
             msg = _("New connection has been rejected");
         }
+        UI.dispatchEventToParent('vnc_securityFailed_event');
         UI.showStatus(msg, 'error');
     },
 
