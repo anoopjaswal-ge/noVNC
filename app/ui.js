@@ -68,6 +68,14 @@ const UI = {
     start() {
 
         UI.initSettings();
+        window.addEventListener('beforeunload', function (event) {
+            console.log(' beforeunload -> disconnecting Socket connection');
+            UI.rfb.disconnect();
+        });
+        window.addEventListener('unload', function (event) {
+            console.log(' beforeunload -> disconnecting Socket connection');
+            UI.rfb.disconnect();
+        });
 
         // Translate the DOM
         l10n.translateDOM();
